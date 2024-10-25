@@ -48,7 +48,6 @@ heatmap_data = df.groupby('Speed_Bin').agg({
     'Model_3_Residual': 'mean',
     'Model_4_Residual': 'mean'
 }).reset_index()
-
 # Convert Speed_Bin to string for display on the heatmap axis
 heatmap_data['Speed_Bin'] = heatmap_data['Speed_Bin'].astype(str)
 
