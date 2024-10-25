@@ -32,3 +32,40 @@ test_r2 = r2_score(y_test, y_pred_test)
 lasso_coefficients = lasso.coef_
 
 (train_mse, test_mse, train_r2, test_r2, lasso_coefficients)
+import pandas as pd
+
+# Organize model performance metrics into a dictionary
+model_performance = {
+    "Metric": ["Training MSE", "Testing MSE", "Training R²", "Testing R²"],
+    "Value": [train_mse, test_mse, train_r2, test_r2]
+}
+
+# Convert dictionary to a DataFrame for display
+performance_df = pd.DataFrame(model_performance)
+
+import ace_tools as tools; tools.display_dataframe_to_user(name="Model Performance Metrics", dataframe=performance_df)
+# Updated regression equation with explicit coefficients
+detailed_equation = f"Predicted CO2 = {lasso_coefficients[0]:.3f} * Speed + {lasso_coefficients[1]:.3f} * AD + {lasso_coefficients[2]:.3f} * Fuel + {intercept:.3f}"
+
+# Plot 2: Predicted vs Actual CO2 (Training Data) with detailed coefficients
+plt.figure(figsize=(8, 6))
+plt.scatter(y_train, y_pred_train, color='blue', alpha=0.6, label='Training Data')
+plt.plot([y.min(), y.max()], [y.min(), y.max()], 'k--', lw=2)
+plt.xlabel('Actual CO2')
+plt.ylabel('Predicted CO2')
+plt.title('Predicted vs Actual CO2 (Training Data)')
+plt.text(0.05, 0.9, detailed_equation, transform=plt.gca().transAxes, fontsize=10, color="blue", bbox=dict(facecolor='white', alpha=0.5))
+plt.legend()
+plt.show()
+
+# Plot 3: Predicted vs Actual CO2 (Testing Data) with detailed coefficients
+plt.figure(figsize=(8, 6))
+plt.scatter(y_test, y_pred_test, color='red', alpha=0.6, label='Testing Data')
+plt.plot([y.min(), y.max()], [y.min(), y.max()], 'k--', lw=2)
+plt.xlabel('Actual CO2')
+plt.ylabel('Predicted CO2')
+plt.title('Predicted vs Actual CO2 (Testing Data)')
+plt.text(0.05, 0.9, detailed_equation, transform=plt.gca().transAxes, fontsize=10, color="red", bbox=dict(facecolor='white', alpha=0.5))
+plt.legend()
+plt.show()
+
