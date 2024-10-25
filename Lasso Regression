@@ -1,0 +1,34 @@
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import Lasso
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_squared_error, r2_score
+
+# Define features and target
+X = sheet1_data[['Speed', 'AD', 'Fuel']]
+y = sheet1_data['CO2']
+
+# Standardize features
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+
+# Perform Lasso regression with cross-validation to select the best alpha
+lasso = Lasso(alpha=0.1)  # starting with a small alpha; can adjust based on results
+lasso.fit(X_train, y_train)
+
+# Make predictions
+y_pred_train = lasso.predict(X_train)
+y_pred_test = lasso.predict(X_test)
+
+# Calculate performance metrics
+train_mse = mean_squared_error(y_train, y_pred_train)
+test_mse = mean_squared_error(y_test, y_pred_test)
+train_r2 = r2_score(y_train, y_pred_train)
+test_r2 = r2_score(y_test, y_pred_test)
+
+# Retrieve coefficients
+lasso_coefficients = lasso.coef_
+
+(train_mse, test_mse, train_r2, test_r2, lasso_coefficients)
