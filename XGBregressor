@@ -5,23 +5,19 @@ xgboost_model = XGBRegressor(objective='reg:squarederror', random_state=42)
 # Fit the model to the training data
 xgboost_model.fit(X_train, y_train)
 
-# Make predictions for both training and testing sets
 y_pred_train_xgb = xgboost_model.predict(X_train)
 y_pred_test_xgb = xgboost_model.predict(X_test)
 
-# Calculate performance metrics for XGBoost
 train_mse_xgb = mean_squared_error(y_train, y_pred_train_xgb)
 test_mse_xgb = mean_squared_error(y_test, y_pred_test_xgb)
 train_r2_xgb = r2_score(y_train, y_pred_train_xgb)
 test_r2_xgb = r2_score(y_test, y_pred_test_xgb)
 
-# Organize performance metrics for display
 xgboost_performance = {
     "Metric": ["Training MSE", "Testing MSE", "Training R²", "Testing R²"],
     "Value": [train_mse_xgb, test_mse_xgb, train_r2_xgb, test_r2_xgb]
 }
 
-# Convert performance metrics to DataFrame and display
 xgboost_performance_df = pd.DataFrame(xgboost_performance)
 
 import ace_tools as tools; tools.display_dataframe_to_user(name="XGBoost Model Performance Metrics", dataframe=xgboost_performance_df)
@@ -31,10 +27,8 @@ xgboost_detailed_metrics = {
     "Value": [train_mse_xgb, test_mse_xgb, train_r2_xgb, test_r2_xgb]
 }
 
-# Convert to a DataFrame for display
 xgboost_detailed_df = pd.DataFrame(xgboost_detailed_metrics)
 
-# Display the detailed performance metrics to the user in tabular form
 import ace_tools as tools; tools.display_dataframe_to_user(name="XGBoost Regression Detailed Performance Metrics", dataframe=xgboost_detailed_df)
 # Re-import necessary libraries and reinitialize variables due to session reset
 import pandas as pd
@@ -49,23 +43,38 @@ from xgboost import XGBRegressor
 import numpy as np
 np.random.seed(42)
 
-# Generate synthetic data resembling the original structure
 n_samples = 100
 X_synthetic = np.random.rand(n_samples, 3)  # 3 features to simulate Speed, AD, and Fuel
 y_synthetic = 3 * X_synthetic[:, 0] + 5 * X_synthetic[:, 1] + 10 * X_synthetic[:, 2] + np.random.normal(0, 0.5, n_samples)
 
-# Split synthetic data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X_synthetic, y_synthetic, test_size=0.2, random_state=42)
 
-# Initialize and fit XGBoost model on synthetic data
 xgboost_model = XGBRegressor(objective='reg:squarederror', random_state=42)
 xgboost_model.fit(X_train, y_train)
 
-# Make predictions
 y_pred_train_xgb = xgboost_model.predict(X_train)
 y_pred_test_xgb = xgboost_model.predict(X_test)
+# Adjust the XGBRegressor model with simpler parameters and early stopping
+xgb_model = XGBRegressor(objective='reg:squarederror', n_estimators=20, learning_rate=0.1, max_depth=2, random_state=42)
+xgb_model.fit(X_train, y_train, early_stopping_rounds=5, eval_set=[(X_test, y_test)], verbose=False)
 
-# Plot 1: Feature Importance
+y_pred = xgb_model.predict(X_test)
+
+performance_metrics = {
+    "Mean Absolute Error (MAE)": mean_absolute_error(y_test, y_pred),
+    "Mean Squared Error (MSE)": mean_squared_error(y_test, y_pred),
+    "Root Mean Squared Error (RMSE)": np.sqrt(mean_squared_error(y_test, y_pred)),
+    "Mean Absolute Percentage Error (MAPE)": mean_absolute_percentage_error(y_test, y_pred),
+    "R-squared (R2)": r2_score(y_test, y_pred),
+    "Explained Variance Score": explained_variance_score(y_test, y_pred)
+}
+
+# DataFrame to display the metrics
+metrics_df = pd.DataFrame(list(performance_metrics.items()), columns=["Metric", "Value"])
+
+# Display the DataFrame to the user
+import ace_tools as tools; tools.display_dataframe_to_user(name="XGBoost Model Performance Metrics", dataframe=metrics_df)
+
 plt.figure(figsize=(8, 6))
 plt.bar(['Feature 1 (Speed)', 'Feature 2 (AD)', 'Feature 3 (Fuel)'], xgboost_model.feature_importances_)
 plt.xlabel('Features')
@@ -73,7 +82,6 @@ plt.ylabel('Importance')
 plt.title('XGBoost Feature Importance')
 plt.show()
 
-# Plot 2: Predicted vs Actual CO2 (Training Data)
 plt.figure(figsize=(8, 6))
 plt.scatter(y_train, y_pred_train_xgb, color='blue', alpha=0.6, label='Training Data')
 plt.plot([y_synthetic.min(), y_synthetic.max()], [y_synthetic.min(), y_synthetic.max()], 'k--', lw=2)
@@ -83,7 +91,6 @@ plt.title('Predicted vs Actual CO2 (Training Data) - XGBoost')
 plt.legend()
 plt.show()
 
-# Plot 3: Predicted vs Actual CO2 (Testing Data)
 plt.figure(figsize=(8, 6))
 plt.scatter(y_test, y_pred_test_xgb, color='red', alpha=0.6, label='Testing Data')
 plt.plot([y_synthetic.min(), y_synthetic.max()], [y_synthetic.min(), y_synthetic.max()], 'k--', lw=2)
@@ -93,7 +100,6 @@ plt.title('Predicted vs Actual CO2 (Testing Data) - XGBoost')
 plt.legend()
 plt.show()
 
-# Plot 4: Residuals Plot (Testing Data)
 residuals_test_xgb = y_test - y_pred_test_xgb
 plt.figure(figsize=(8, 6))
 plt.scatter(y_pred_test_xgb, residuals_test_xgb, color='red', alpha=0.6, label='Testing Residuals')
